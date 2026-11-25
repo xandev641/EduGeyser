@@ -595,7 +595,7 @@ public final class ItemTranslator {
             // ItemStack#getHoverName as of 1.20.5
             Component customName = components.get(DataComponentTypes.CUSTOM_NAME);
             if (customName != null) {
-                return MessageTranslator.convertMessageRaw(customName, session.locale());
+                return MessageTranslator.convertItemTooltip(customName, session.locale(), translationColor);
             }
 
             if (!customNameOnly) {

@@ -26,6 +26,8 @@
 package org.geysermc.geyser.translator.text;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentIteratorFlag;
+import net.kyori.adventure.text.ComponentIteratorType;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
@@ -241,6 +243,21 @@ public class MessageTranslator {
 
             return "";
         }
+    }
+
+    /**
+     * Bedrock supplies italics and a color for custom item names and lore. A legacy string cannot
+     * turn off those italics without resetting both, so make the inherited styles explicit in that case.
+     */
+    public static String convertItemTooltip(Component message, String locale, char defaultColor) {
+        for (Component part : message.iterable(ComponentIteratorType.DEPTH_FIRST, ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS)) {
+            if (part.decoration(TextDecoration.ITALIC) == TextDecoration.State.FALSE) {
+                var color = LegacyComponentSerializer.parseChar(defaultColor);
+                return convertMessage(message.colorIfAbsent(color == null ? null : color.color())
+                    .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.TRUE), locale);
+            }
+        }
+        return convertMessageRaw(message, locale);
     }
 
     /**
